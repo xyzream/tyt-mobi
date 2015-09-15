@@ -30,6 +30,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -44,6 +46,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.betasoft.ToyotaMobi.R;
@@ -169,13 +172,21 @@ public class MainMenu extends Fragment implements OnClickListener {
                 break;
             //called when AskNow button clicked and takes user to ChatMain page
             case R.id.asknowlayout:
-                Fragment fm = new ChatMain();
-                FragmentTransaction tx3 = getFragmentManager().beginTransaction();
-                tx3.replace(R.id.content_frame, fm);
-                TextView tv2 = (TextView) getActivity().getActionBar().getCustomView().findViewById(R.id.actiontitle);
-                tv2.setText("Chat");
-                tx3.addToBackStack("ask");
-                tx3.commit();
+
+                if (!isNetworkAvailable()) {
+                    Toast.makeText(getActivity().getApplicationContext(), "Sorry!! You are not Connected to Internet!", Toast.LENGTH_LONG).show();
+                } else {
+
+                    Fragment fm = new ChatMain();
+                    FragmentTransaction tx3 = getFragmentManager().beginTransaction();
+                    tx3.replace(R.id.content_frame, fm);
+                    TextView tv2 = (TextView) getActivity().getActionBar().getCustomView().findViewById(R.id.actiontitle);
+                    tv2.setText("Chat");
+                    tx3.addToBackStack("ask");
+                    tx3.commit();
+                }
+
+
                 break;
             //called when Service button clicked and takes user to Service page
             case R.id.myaccountlayout:
@@ -201,6 +212,12 @@ public class MainMenu extends Fragment implements OnClickListener {
 
     }
 
+    public boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
     private class MyServiceReceiveData extends AsyncTask<String, String, String> {
 
@@ -275,7 +292,7 @@ public class MainMenu extends Fragment implements OnClickListener {
             if (url != null) {
                 banner.setImageUrl(url, mImageLoader);
                 banner.setVisibility(View.VISIBLE);
-                banner .setResponseObserver(new AdsImageView.ResponseObserver() {
+                banner.setResponseObserver(new AdsImageView.ResponseObserver() {
                     @Override
                     public void onError() {
                     }

@@ -109,13 +109,7 @@ public class ChatMain extends Activity implements KeyClickListener {
     String senderID, receiverID;
 
     // used to get messages from server after a time interval
-    Runnable mStatusChecker = new Runnable() {
-        @Override
-        public void run() {
-            receiveData(); // this function retrieve messages from server
-            mHandler.postDelayed(mStatusChecker, 5000); // this is time interval, 1000 = 1 second
-        }
-    };
+    public Runnable mStatusChecker =null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -405,6 +399,15 @@ public class ChatMain extends Activity implements KeyClickListener {
             }
         });
 
+
+        // used to get messages from server after a time interval
+        this.mStatusChecker = new Runnable() {
+            @Override
+            public void run() {
+                receiveData(); // this function retrieve messages from server
+                mHandler.postDelayed(this, 5000); // this is time interval, 1000 = 1 second
+            }
+        };
     }
 
     private void changeEmojiKeyboardIcon(ImageView iconToBeChanged,
@@ -437,9 +440,7 @@ public class ChatMain extends Activity implements KeyClickListener {
 
                 BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
 
-                bitmap = BitmapFactory.decodeFile(f.getAbsolutePath(),
-
-                        bitmapOptions);
+                bitmap = BitmapFactory.decodeFile(f.getAbsolutePath(), bitmapOptions);
                 FileOutputStream outFile = new FileOutputStream(f);
 
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 40, outFile);
@@ -526,7 +527,7 @@ public class ChatMain extends Activity implements KeyClickListener {
         // TODO Auto-generated method stub
         chat_list.clear();
         chat_list.add(new MessageBean(senderID, receiverID,
-                "Hey, How may I help You.", "", "", ""));
+                "Hi, How may I help you?.", "", "", ""));
         if (isNetworkAvailable()) {
             MyServiceReceiveData myserrecdata = new MyServiceReceiveData();
             myserrecdata.execute();
@@ -709,10 +710,20 @@ public class ChatMain extends Activity implements KeyClickListener {
         }
     }
 
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        //mStatusChecker.run();
+        //Delay to resume the thread
+        mHandler.postDelayed(mStatusChecker, 5000);
+    }
+
     @Override
     protected void onStop() {
-        mHandler.removeCallbacks(mStatusChecker);
         super.onStop();
+        mHandler.removeCallbacks(mStatusChecker);
+
     }
 
     @Override
@@ -725,16 +736,12 @@ public class ChatMain extends Activity implements KeyClickListener {
     public void keyClickedIndex(String index) {
     }
 
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        mStatusChecker.run();
-    }
+
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-            Log.d(this.getClass().getName(), "back button pressed");
+            //Log.d(this.getClass().getName(), "back button pressed");
             Intent in = new Intent(ChatMain.this, UsersListActivity.class);
             startActivity(in);
             return super.onKeyDown(keyCode, event);

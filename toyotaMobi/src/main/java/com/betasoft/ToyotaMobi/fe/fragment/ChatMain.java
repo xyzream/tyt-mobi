@@ -127,6 +127,11 @@ public class ChatMain extends Fragment implements OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+
+        if (!isNetworkAvailable()) {
+            Toast.makeText(getActivity().getApplicationContext(), "Sorry!! You are not Connected to Internet!", Toast.LENGTH_LONG).show();
+        }
+
         mainView = inflater.inflate(R.layout.chat_menu_screenr, container, false);
         final View rootView = mainView.findViewById(R.id.root_view);
 
@@ -540,7 +545,7 @@ public class ChatMain extends Fragment implements OnClickListener {
                 userLocation = setUserLocation();
             if (userLocation == null)
                 userLocation = new StringBuilder("Can't get location");
-//	userLocation =userLocation ==null?new StringBuilder("Location is unknown"):userLocation;
+            //userLocation =userLocation ==null?new StringBuilder("Location is unknown"):userLocation;
             chat_list.add(new MessageBean(SplashActivity.mechanicId, SplashActivity.usersDetailBean.userId, "Hey, How may I help You.", "", "", userLocation.toString()));
 
             MyServiceReceiveData myserrecdata = new MyServiceReceiveData();
@@ -556,11 +561,6 @@ public class ChatMain extends Fragment implements OnClickListener {
         //ArrayAdapter<String> adapter=new ArrayAdapter<String>(getActivity(),chat_list);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-//		mStatusChecker.run();
-    }
 
     @Override
     public void onClick(View v) {
@@ -569,10 +569,21 @@ public class ChatMain extends Fragment implements OnClickListener {
 
 
     @Override
+    public void onResume() {
+        super.onResume();
+        //mStatusChecker.run();
+        //Delay to resume the thread
+        mHandler.postDelayed(mStatusChecker, 5000);
+    }
+
+
+    @Override
     public void onStop() {
-//		 mHandler.removeCallbacks(mStatusChecker);
+
         // TODO Auto-generated method stub
         super.onStop();
+        //good remove
+        mHandler.removeCallbacks(mStatusChecker);
     }
 
     @Override
@@ -791,7 +802,7 @@ public class ChatMain extends Fragment implements OnClickListener {
                 listChat.setAdapter(newAdapter);
             } catch (Exception e) {
                 listChat.setAdapter(null);
-                Log.d("The Code Love ",e.getMessage());
+                Log.d("The Code Love ", e.getMessage());
 
             }
 

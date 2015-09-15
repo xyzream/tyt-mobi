@@ -264,6 +264,7 @@ public class NavigationMain extends Activity implements OnClickListener {
    			         img.setBackgroundResource(android.R.color.transparent);*/
                 tx.commit();
                 //    view.setBackgroundColor(getResources().getColor(R.color.red));
+
                 mDrawerLayout.closeDrawers();
             }
 
